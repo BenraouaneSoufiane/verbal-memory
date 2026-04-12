@@ -2,6 +2,7 @@ import React from "react";
 
 type Participant = {
   id: string;
+  participant_id: string | null;
   created_at: string;
   updated_at: string;
   score: number;
@@ -9,10 +10,11 @@ type Participant = {
   turn: number;
   gameState: "playing" | "gameover";
   historyCount: number;
+  accuracy: number;
 };
 
 async function getParticipants(): Promise<Participant[]> {
-  const res = await fetch("http://localhost:3001/api/admin/verbal-memory", {
+  const res = await fetch("http://intellitest.space/api/admin/verbal-memory", {
     headers: {
       "x-admin-token": process.env.ADMIN_TOKEN ?? "",
     },
@@ -40,8 +42,10 @@ export default async function AdminPage() {
             <thead className="border-b border-neutral-800 bg-neutral-950/40">
               <tr>
                 <th className="px-4 py-3">Session</th>
+                <th className="px-4 py-3">Participant</th>
                 <th className="px-4 py-3">State</th>
                 <th className="px-4 py-3">Score</th>
+                <th className="px-4 py-3">Accuracy</th>
                 <th className="px-4 py-3">Turn</th>
                 <th className="px-4 py-3">Lives</th>
                 <th className="px-4 py-3">Words</th>
@@ -52,8 +56,10 @@ export default async function AdminPage() {
               {participants.map((p) => (
                 <tr key={p.id} className="border-b border-neutral-800">
                   <td className="px-4 py-3 font-mono text-xs">{p.id}</td>
+                  <td className="px-4 py-3">{p.participant_id ?? "—"}</td>
                   <td className="px-4 py-3">{p.gameState}</td>
                   <td className="px-4 py-3">{p.score}</td>
+                  <td className="px-4 py-3">{p.accuracy}%</td>
                   <td className="px-4 py-3">{p.turn}</td>
                   <td className="px-4 py-3">{p.lives}</td>
                   <td className="px-4 py-3">{p.historyCount}</td>

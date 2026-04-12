@@ -6,6 +6,8 @@ import {
   serializeSession,
   type SessionData,
 } from "@/lib/verbal-memory";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 async function insertSession(session: SessionData) {
   await pool.query(
@@ -53,11 +55,51 @@ function makeSessionId(): string {
   return crypto.randomUUID();
 }
 
-export async function GET() {
+function isValidParticipantId(value: string): boolean {
+  return /^[a-z0-9.-]+$/.test(value);
+}
+
+async function getNextHumanParticipantId(): Promise<string> {
+  const result = await pool.query<{ max_number: number | null }>(
+    `
+    select max(
+      cast(substring(state->>'participantId' from 'human-([0-9]+)') as int)
+    ) as max_number
+    from game_sessions
+    where game_type = 'verbal-memory'
+      and state->>'participantId' ~ '^human-[0-9]+$'
+    `
+  );
+
+  const maxNumber = result.rows[0]?.max_number ?? 0;
+  return `human-${maxNumber + 1}`;
+}
+
+export async function GET(req: NextRequest) {
   try {
     const sessionId = makeSessionId();
-    const session = createSession(sessionId);
 
+    const requestedParticipantId = req.nextUrl.searchParams.get("participantId");
+    let participantId: string;
+
+    if (requestedParticipantId) {
+      if (!isValidParticipantId(requestedParticipantId)) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error:
+              "Invalid participantId. Use lowercase letters, numbers, dots, and hyphens only.",
+          },
+          { status: 400 }
+        );
+      }
+
+      participantId = requestedParticipantId;
+    } else {
+      participantId = await getNextHumanParticipantId();
+    }
+
+    const session = createSession(sessionId, participantId);
     await insertSession(session);
 
     return NextResponse.json({
@@ -78,14 +120,40 @@ export async function POST(req: NextRequest) {
   try {
     const body = (await req.json()) as {
       sessionId?: string;
+      participantId?: string;
       answer?: "new" | "seen";
       action?: "reset";
     };
 
     if (body.action === "reset") {
-      const sessionId = makeSessionId();
-      const session = createSession(sessionId);
+      let participantId: string | null = null;
 
+      if (body.sessionId) {
+        const existingSession = await getSession(body.sessionId);
+        participantId = existingSession?.participantId ?? null;
+      }
+
+      if (!participantId && body.participantId) {
+        if (!isValidParticipantId(body.participantId)) {
+          return NextResponse.json(
+            {
+              ok: false,
+              error:
+                "Invalid participantId. Use lowercase letters, numbers, dots, and hyphens only.",
+            },
+            { status: 400 }
+          );
+        }
+
+        participantId = body.participantId;
+      }
+
+      if (!participantId) {
+        participantId = await getNextHumanParticipantId();
+      }
+
+      const sessionId = makeSessionId();
+      const session = createSession(sessionId, participantId);
       await insertSession(session);
 
       return NextResponse.json({
@@ -121,7 +189,7 @@ export async function POST(req: NextRequest) {
     console.error("POST /api/verbal-memory failed:", error);
 
     return NextResponse.json(
-      { ok: false, error: "Invalid request or server error." },
+      { ok: false, error: "Invalid request body." },
       { status: 400 }
     );
   }

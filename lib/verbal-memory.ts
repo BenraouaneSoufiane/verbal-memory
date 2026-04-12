@@ -22,6 +22,7 @@ export type QueueItem = {
 
 export type SessionData = {
   id: string;
+  participantId: string;
   gameState: GameState;
   score: number;
   lives: number;
@@ -110,7 +111,7 @@ function chooseNextWord(
   return fresh;
 }
 
-export function createSession(sessionId: string): SessionData {
+export function createSession(sessionId: string, participantId: string): SessionData {
   const pool = shuffle([...new Set(WORD_POOL)]);
   const queue: QueueItem[] = [];
   const used = new Set<string>();
@@ -121,6 +122,7 @@ export function createSession(sessionId: string): SessionData {
 
   return {
     id: sessionId,
+    participantId,
     gameState: "playing",
     score: 0,
     lives: 3,
@@ -223,6 +225,7 @@ export function answerSession(
 export function serializeSession(session: SessionData) {
   return {
     sessionId: session.id,
+    participantId: session.participantId,
     gameState: session.gameState,
     score: session.score,
     lives: session.lives,

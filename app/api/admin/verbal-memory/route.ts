@@ -22,19 +22,30 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const result = await pool.query<AdminRow>(
+    const result = await pool.query(
       `
       select
         id,
+        state->>'participantId' as participant_id,
         created_at,
         updated_at,
         (state->>'score')::int as score,
         (state->>'lives')::int as lives,
         (state->>'turn')::int as turn,
         (state->>'gameState')::text as "gameState",
-        coalesce(jsonb_array_length(state->'history'), 0) as "historyCount"
+        coalesce(jsonb_array_length(state->'history'), 0) as "historyCount",
+      
+        case
+          when ((state->>'score')::int + (3 - (state->>'lives')::int)) <= 0 then 0
+          else round(
+            (
+              ((state->>'score')::numeric) /
+              (((state->>'score')::int + (3 - (state->>'lives')::int))::numeric)
+            ) * 100
+          )
+        end as accuracy
+      
       from game_sessions
-      where game_type = 'verbal-memory'
       order by updated_at desc
       `
     );

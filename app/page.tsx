@@ -5,6 +5,7 @@ import React, { useState } from "react";
 type ApiState = {
   ok: boolean;
   sessionId: string;
+  participantId: string;
   gameState: "playing" | "gameover";
   score: number;
   lives: number;
@@ -60,7 +61,10 @@ export default function Page() {
       const res = await fetch("/api/verbal-memory", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "reset" }),
+        body: JSON.stringify({
+          action: "reset",
+          sessionId: game?.sessionId,
+        }),
       });
 
       const data: ApiState = await res.json();
