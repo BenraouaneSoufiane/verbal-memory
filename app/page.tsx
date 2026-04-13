@@ -164,6 +164,25 @@ export default function Page() {
             </p>
           </div>
         )}
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+          <a
+            href="https://github.com/benraouanesoufiane/verbal-memory/docs/ai-agents.md"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-2xl border border-neutral-700 bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-neutral-800"
+          >
+            🤖 AI Agents Guide
+          </a>
+        
+          <a
+            href="https://intellitest.space/admin/verbal-memory"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-2xl border border-neutral-700 bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-neutral-800"
+          >
+            📊 See Results
+          </a>
+        </div>
       </div>
     </main>
   );
