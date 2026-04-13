@@ -92,8 +92,9 @@ function AvgSummary({ comparisons }: { comparisons: ComparisonRow[] }) {
     <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-6">
       <h2 className="text-xl font-semibold text-white">Human vs AI Summary</h2>
       <p className="mt-2 text-sm text-neutral-400">
-        Only finished sessions are counted. Null scores are ignored. Each human is
-        matched with one AI model only.
+        Based on matched pairs only: average = total score ÷ number of pairs.
+        Finished sessions only. Null scores and playing sessions are excluded.
+        Extra AI results are ignored to keep the comparison balanced.
       </p>
 
       <div className="mt-6 space-y-4">
@@ -145,7 +146,8 @@ function PairChart({ comparisons }: { comparisons: ComparisonRow[] }) {
     <div className="rounded-2xl border border-neutral-800 bg-neutral-950 p-6">
       <h2 className="text-xl font-semibold text-white">Human vs AI Pairs</h2>
       <p className="mt-2 text-sm text-neutral-400">
-        Latest valid completed result per participant. Extra AI models are ignored.
+        One human is matched with one AI model.
+        Bars represent raw scores and are scaled for visual comparison only.
       </p>
 
       <div className="mt-6 space-y-6">
