@@ -1,0 +1,47 @@
+.
+├── AGENTS.md
+├── CLAUDE.md
+├── LICENSE
+├── README.md
+├── app
+│   ├── admin
+│   │   └── verbal-memory
+│   │       ├── ResultsTableClient.tsx
+│   │       └── page.tsx
+│   ├── api
+│   │   ├── admin
+│   │   │   └── verbal-memory
+│   │   │       └── route.ts
+│   │   └── verbal-memory
+│   │       └── route.ts
+│   ├── favicon.ico
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
+├── docs
+│   └── ai-agents.md
+├── eslint.config.mjs
+├── lib
+│   ├── db.ts
+│   ├── participants.ts
+│   ├── session-store.ts
+│   ├── tests
+│   │   ├── index.ts
+│   │   ├── types.ts
+│   │   └── verbal-memory.ts
+│   └── verbal-memory.ts
+├── next-env.d.ts
+├── next.config.ts
+├── package-lock.json
+├── package.json
+├── postcss.config.mjs
+├── project_tree.txt
+├── public
+│   ├── file.svg
+│   ├── globe.svg
+│   ├── next.svg
+│   ├── vercel.svg
+│   └── window.svg
+└── tsconfig.json
+
+12 directories, 33 files

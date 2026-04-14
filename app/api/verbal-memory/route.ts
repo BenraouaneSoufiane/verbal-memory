@@ -1,79 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
-import { pool } from "@/lib/db";
 import {
-  answerSession,
-  createSession,
-  serializeSession,
-  type SessionData,
-} from "@/lib/verbal-memory";
+  VERBAL_MEMORY_GAME_TYPE,
+  answerVerbalMemorySession,
+  createVerbalMemorySession,
+  serializeVerbalMemorySession,
+  type VerbalMemorySessionData,
+} from "@/lib/tests/verbal-memory";
+import {
+  getGameSession,
+  insertGameSession,
+  updateGameSession,
+} from "@/lib/session-store";
+import {
+  getNextHumanParticipantId,
+  isValidParticipantId,
+  makeSessionId,
+} from "@/lib/participants";
+
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-async function insertSession(session: SessionData) {
-  await pool.query(
-    `
-    insert into game_sessions (id, game_type, state, created_at, updated_at)
-    values ($1, $2, $3::jsonb, now(), now())
-    `,
-    [session.id, "verbal-memory", JSON.stringify(session)]
-  );
-}
+type ResetBody = {
+  action?: "reset";
+  sessionId?: string;
+  participantId?: string;
+};
 
-async function getSession(sessionId: string): Promise<SessionData | null> {
-  const result = await pool.query(
-    `
-    select state
-    from game_sessions
-    where id = $1
-      and game_type = 'verbal-memory'
-    limit 1
-    `,
-    [sessionId]
-  );
-
-  if (result.rowCount === 0) {
-    return null;
-  }
-
-  return result.rows[0].state as SessionData;
-}
-
-async function updateSession(session: SessionData) {
-  await pool.query(
-    `
-    update game_sessions
-    set state = $2::jsonb,
-        updated_at = now()
-    where id = $1
-      and game_type = 'verbal-memory'
-    `,
-    [session.id, JSON.stringify(session)]
-  );
-}
-
-function makeSessionId(): string {
-  return crypto.randomUUID();
-}
-
-function isValidParticipantId(value: string): boolean {
-  return /^[a-z0-9.-]+$/.test(value);
-}
-
-async function getNextHumanParticipantId(): Promise<string> {
-  const result = await pool.query<{ max_number: number | null }>(
-    `
-    select max(
-      cast(substring(state->>'participantId' from 'human-([0-9]+)') as int)
-    ) as max_number
-    from game_sessions
-    where game_type = 'verbal-memory'
-      and state->>'participantId' ~ '^human-[0-9]+$'
-    `
-  );
-
-  const maxNumber = result.rows[0]?.max_number ?? 0;
-  return `human-${maxNumber + 1}`;
-}
+type AnswerBody = {
+  sessionId?: string;
+  answer?: "new" | "seen";
+};
 
 export async function GET(req: NextRequest) {
   try {
@@ -96,15 +52,15 @@ export async function GET(req: NextRequest) {
 
       participantId = requestedParticipantId;
     } else {
-      participantId = await getNextHumanParticipantId();
+      participantId = await getNextHumanParticipantId(VERBAL_MEMORY_GAME_TYPE);
     }
 
-    const session = createSession(sessionId, participantId);
-    await insertSession(session);
+    const session = createVerbalMemorySession(sessionId, participantId);
+    await insertGameSession(VERBAL_MEMORY_GAME_TYPE, session);
 
     return NextResponse.json({
       ok: true,
-      ...serializeSession(session),
+      ...serializeVerbalMemorySession(session),
     });
   } catch (error) {
     console.error("GET /api/verbal-memory failed:", error);
@@ -118,18 +74,16 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = (await req.json()) as {
-      sessionId?: string;
-      participantId?: string;
-      answer?: "new" | "seen";
-      action?: "reset";
-    };
+    const body = (await req.json()) as ResetBody & AnswerBody;
 
     if (body.action === "reset") {
       let participantId: string | null = null;
 
       if (body.sessionId) {
-        const existingSession = await getSession(body.sessionId);
+        const existingSession = await getGameSession<VerbalMemorySessionData>(
+          VERBAL_MEMORY_GAME_TYPE,
+          body.sessionId
+        );
         participantId = existingSession?.participantId ?? null;
       }
 
@@ -149,16 +103,16 @@ export async function POST(req: NextRequest) {
       }
 
       if (!participantId) {
-        participantId = await getNextHumanParticipantId();
+        participantId = await getNextHumanParticipantId(VERBAL_MEMORY_GAME_TYPE);
       }
 
       const sessionId = makeSessionId();
-      const session = createSession(sessionId, participantId);
-      await insertSession(session);
+      const session = createVerbalMemorySession(sessionId, participantId);
+      await insertGameSession(VERBAL_MEMORY_GAME_TYPE, session);
 
       return NextResponse.json({
         ok: true,
-        ...serializeSession(session),
+        ...serializeVerbalMemorySession(session),
       });
     }
 
@@ -169,7 +123,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const session = await getSession(body.sessionId);
+    const session = await getGameSession<VerbalMemorySessionData>(
+      VERBAL_MEMORY_GAME_TYPE,
+      body.sessionId
+    );
 
     if (!session) {
       return NextResponse.json(
@@ -178,12 +135,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const updated = answerSession(session, body.answer);
-    await updateSession(updated);
+    const updated = answerVerbalMemorySession(session, body.answer);
+    await updateGameSession(VERBAL_MEMORY_GAME_TYPE, updated);
 
     return NextResponse.json({
       ok: true,
-      ...serializeSession(updated),
+      ...serializeVerbalMemorySession(updated),
     });
   } catch (error) {
     console.error("POST /api/verbal-memory failed:", error);

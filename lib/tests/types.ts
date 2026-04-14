@@ -1,0 +1,17 @@
+export type GameType = "verbal-memory" | "number-memory";
+
+export type BaseGameState = "playing" | "gameover";
+
+export type BaseSessionData = {
+  id: string;
+  participantId: string;
+  gameState: BaseGameState;
+  score: number;
+};
+
+export type SerializedSession = {
+  sessionId: string;
+  participantId: string;
+  gameState: BaseGameState;
+  score: number;
+};
