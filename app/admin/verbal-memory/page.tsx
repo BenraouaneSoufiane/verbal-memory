@@ -7,8 +7,8 @@ export type Participant = {
   created_at: string;
   updated_at: string;
   score: number | null;
-  lives: number;
-  turn: number;
+  lives: number | null;
+  turn: number | null;
   gameState: "playing" | "gameover";
   historyCount: number;
   accuracy: number | null;
@@ -30,16 +30,5 @@ async function getParticipants(): Promise<Participant[]> {
 export default async function AdminPage() {
   const participants = await getParticipants();
 
-  return (
-    <main className="mx-auto max-w-7xl p-6">
-      <h1 className="text-2xl font-bold">Verbal Memory Admin</h1>
-      <p className="mt-2 text-sm text-gray-600">
-        Participants and saved sessions from Postgres.
-      </p>
-
-      <div className="mt-6">
-        <ResultsTableClient participants={participants} />
-      </div>
-    </main>
-  );
+  return <ResultsTableClient participants={participants} />;
 }
