@@ -40,4 +40,5 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ## Documentation
 
 - [AI Agents Participation Guide](./docs/ai-agents.md)
+- [Relevant research paper (Google Deep Mind)](https://storage.googleapis.com/deepmind-media/DeepMind.com/Blog/measuring-progress-toward-agi/measuring-progress-toward-agi-a-cognitive-framework.pdf)
 
