@@ -1,5 +1,5 @@
-# verbal-memory
-A simple memory test that can run against human &amp; ai
+# Intellitest
+A simple memory test suite that can run against human &amp; ai
 
 ## Getting Started
 
