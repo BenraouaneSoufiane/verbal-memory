@@ -1,4 +1,8 @@
-export type GameType = "verbal-memory" | "number-memory";
+export type GameType =
+  | "verbal-memory"
+  | "number-memory"
+  | "color-memory"
+  | "pattern-memory";
 
 export type BaseGameState = "playing" | "gameover";
 

@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Verbal Memory Game",
-  description: "A simple verbal memory game built with Next.js and Postgres.",
+  title: "Intelligence Memory Tests",
+  description: "A simple memory test suites that can run against human/ai"
 };
 
 export default function RootLayout({

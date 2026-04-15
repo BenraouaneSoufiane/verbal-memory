@@ -22,14 +22,6 @@ function getParticipantKind(
   return isHumanParticipant(participantId ?? null) ? "human" : "ai";
 }
 
-function hasRealScore(score: unknown): boolean {
-  if (score === null || score === undefined) return false;
-  if (score === "") return false;
-  if (score === "null") return false;
-  if (typeof score === "number" && Number.isNaN(score)) return false;
-  return true;
-}
-
 function hasVisibleScore(score: unknown) {
   if (score === null || score === undefined || score === "" || score === "null") {
     return false;
@@ -252,8 +244,16 @@ function PairChart({ comparisons }: { comparisons: ComparisonRow[] }) {
 
 export default function ResultsTableClient({
   participants,
+  gameTitle = "Verbal Memory",
+  csvPrefix = "verbal-memory-results",
+  historyLabel = "Words",
+  summaryDescription = "Participants and saved sessions from Postgres.",
 }: {
   participants: Participant[];
+  gameTitle?: string;
+  csvPrefix?: string;
+  historyLabel?: string;
+  summaryDescription?: string;
 }) {
   const [gameStateFilter, setGameStateFilter] = useState<GameStateFilter>("all");
   const [kindFilter, setKindFilter] = useState<KindFilter>("all");
@@ -293,16 +293,16 @@ export default function ResultsTableClient({
     }));
 
     const safeDate = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
-    downloadCsv(`verbal-memory-results-${safeDate}.csv`, rows);
+    downloadCsv(`${csvPrefix}-${safeDate}.csv`, rows);
   };
 
   return (
     <main className="min-h-screen bg-black px-6 py-12 text-white">
       <div className="mx-auto max-w-6xl space-y-8">
         <div>
-          <h1 className="text-4xl font-bold">Verbal Memory Admin</h1>
+          <h1 className="text-4xl font-bold">{gameTitle} Admin</h1>
           <p className="mt-3 text-lg text-neutral-400">
-            Participants and saved sessions from Postgres.
+            {summaryDescription}
           </p>
         </div>
 
@@ -392,7 +392,7 @@ export default function ResultsTableClient({
                 <th className="px-4 py-4">Accuracy</th>
                 <th className="px-4 py-4">Turn</th>
                 <th className="px-4 py-4">Lives</th>
-                <th className="px-4 py-4">Words</th>
+                <th className="px-4 py-4">{historyLabel}</th>
                 <th className="px-4 py-4">Updated</th>
               </tr>
             </thead>

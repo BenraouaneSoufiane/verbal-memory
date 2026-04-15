@@ -5,13 +5,25 @@
 ├── README.md
 ├── app
 │   ├── admin
+│   │   ├── color-memory
+│   │   │   └── page.tsx
+│   │   ├── number-memory
+│   │   │   └── page.tsx
 │   │   └── verbal-memory
 │   │       ├── ResultsTableClient.tsx
 │   │       └── page.tsx
 │   ├── api
 │   │   ├── admin
+│   │   │   ├── color-memory
+│   │   │   │   └── route.ts
+│   │   │   ├── number-memory
+│   │   │   │   └── route.ts
 │   │   │   └── verbal-memory
 │   │   │       └── route.ts
+│   │   ├── color-memory
+│   │   │   └── route.ts
+│   │   ├── number-memory
+│   │   │   └── route.ts
 │   │   └── verbal-memory
 │   │       └── route.ts
 │   ├── favicon.ico
@@ -19,14 +31,18 @@
 │   ├── layout.tsx
 │   └── page.tsx
 ├── docs
-│   └── ai-agents.md
+│   ├── ai-agents-number-memory.md
+│   ├── ai-agents.md
+│   └── color-memory-ai-agents.md
 ├── eslint.config.mjs
 ├── lib
 │   ├── db.ts
 │   ├── participants.ts
 │   ├── session-store.ts
 │   ├── tests
+│   │   ├── color-memory.ts
 │   │   ├── index.ts
+│   │   ├── number-memory.ts
 │   │   ├── types.ts
 │   │   └── verbal-memory.ts
 │   └── verbal-memory.ts
@@ -44,4 +60,4 @@
 │   └── window.svg
 └── tsconfig.json
 
-12 directories, 33 files
+18 directories, 43 files
